@@ -1,11 +1,11 @@
 // Copyright 2014 Krishna Raman
-// 
+//
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
 // You may obtain a copy of the License at
-// 
+//
 //     http://www.apache.org/licenses/LICENSE-2.0
-// 
+//
 // Unless required by applicable law or agreed to in writing, software
 // distributed under the License is distributed on an "AS IS" BASIS,
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -25,10 +25,10 @@ type SerialPort byte
 
 const (
 	ProtocolMajorVersion = 2
-	ProtocolMinorVersion = 3
+	ProtocolMinorVersion = 6
 
 	// max number of data bytes in non-Sysex messages
-	MaxDataBytes = 32
+	MaxDataBytes = 64
 
 	// message command bytes (128-255/0x80-0xFF)
 
@@ -46,6 +46,8 @@ const (
 	/* 0x00-0x0F reserved for user-defined commands */
 	ServoConfig           SysExCommand = 0x70 // set max angle, minPulse, maxPulse, freq
 	StringData            SysExCommand = 0x71 // a string message with 14-bits per char
+	StepperData           SysExCommand = 0x72 // control a stepper motor
+	OneWireData           SysExCommand = 0x73 // send an OneWire read/write/reset/select/skip/search request
 	ShiftData             SysExCommand = 0x75 // a bitstream to/from a shift register
 	I2CRequest            SysExCommand = 0x76 // send an I2C read/write request
 	I2CReply              SysExCommand = 0x77 // a reply to an I2C read request
@@ -71,7 +73,7 @@ const (
 
 	SPIConfig SPISubCommand = 0x10
 	SPIComm   SPISubCommand = 0x20
-	
+
 	SPI_MODE0 = 0x00
 	SPI_MODE1 = 0x04
 	SPI_MODE2 = 0x08
@@ -83,14 +85,17 @@ const (
 	HardSerial3 SerialPort = 0x03
 
 	// pin modes
-	Input  PinMode = 0x00
-	Output PinMode = 0x01
-	Analog PinMode = 0x02
-	PWM    PinMode = 0x03
-	Servo  PinMode = 0x04
-	Shift  PinMode = 0x05
-	I2C    PinMode = 0x06
-	SPI    PinMode = 0x07
+	Input   PinMode = 0x00
+	Output  PinMode = 0x01
+	Analog  PinMode = 0x02
+	PWM     PinMode = 0x03
+	Servo   PinMode = 0x04
+	Shift   PinMode = 0x05
+	I2C     PinMode = 0x06
+	OneWire PinMode = 0x07
+	Stepper PinMode = 0x08
+	Encoder PinMode = 0x09
+	Ignore  PinMode = 0x0A
 )
 
 func (m PinMode) String() string {
@@ -177,6 +182,8 @@ func (c SysExCommand) String() string {
 		return fmt.Sprintf("Serial (0x%x)", byte(c))
 	case c == SysExSPI:
 		return fmt.Sprintf("SPI (0x%x)", byte(c))
+	case c == OneWireData:
+		return fmt.Sprintf("OneWire (0x%x)", byte(c))
 	}
 	return fmt.Sprintf("Unexpected SysEx command (0x%x)", byte(c))
 }
